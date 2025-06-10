@@ -1,0 +1,56 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "redirect-trace",
+  "title": "RedirectTrace - URL Chain Inspector",
+  "description": "Developer tool to trace URL redirects and analyze redirect chains. Perfect for debugging, SEO analysis, and checking shortened URLs.",
+  "icon": "command-icon.png",
+  "author": "nurkamol",
+  "categories": [
+    "Developer Tools"
+  ],
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "trace-redirects",
+      "title": "Trace URL Redirects",
+      "description": "Analyze redirect chains and inspect HTTP responses",
+      "mode": "view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "maxRedirects",
+      "type": "textfield",
+      "required": false,
+      "title": "Max Redirects",
+      "description": "Maximum number of redirects to follow",
+      "default": "10"
+    },
+    {
+      "name": "timeout",
+      "type": "textfield",
+      "required": false,
+      "title": "Timeout (ms)",
+      "description": "Request timeout in milliseconds",
+      "default": "5000"
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.48.0"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "1.0.5",
+    "@types/node": "18.8.3",
+    "@types/react": "18.0.9",
+    "eslint": "^8.19.0",
+    "prettier": "^2.5.1",
+    "typescript": "^4.4.3"
+  },
+  "scripts": {
+    "build": "ray build -e dist",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "publish": "ray publish"
+  }
+}
