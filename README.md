@@ -126,14 +126,6 @@ MIT License - feel free to use and modify as needed.
 
 If you encounter any issues or have feature requests, please open an issue on GitHub.
 
-## Inspiration
-
-This extension was inspired by the web service [WhereGoes.com](https://wheregoes.com) - a simple and effective tool for tracing URL redirects. We wanted to bring that same functionality directly into Raycast for faster, more convenient URL analysis without leaving your workflow.
-
----
-
-Made with ❤️ for the Raycast community
-
 ## 👨‍💻 Author
 
 **Nurkamol Vakhidov**  
@@ -142,3 +134,11 @@ Developer and Raycast enthusiast
 🌐 [nurkamol.com](https://nurkamol.com)  
 🐦 [@nurkamol](https://x.com/nurkamol)  
 📧 [nurkamol@gmail.com](mailto:nurkamol@gmail.com)
+
+## Inspiration
+
+This extension was inspired by the web service [WhereGoes.com](https://wheregoes.com) - a simple and effective tool for tracing URL redirects. We wanted to bring that same functionality directly into Raycast for faster, more convenient URL analysis without leaving your workflow.
+
+---
+
+Made with ❤️ for the Raycast community
