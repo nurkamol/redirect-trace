@@ -2,6 +2,10 @@
 
 Professional URL redirect analysis tool for developers, SEO specialists, and security researchers.
 
+## Screenshot
+
+![RedirectTrace Extension Screenshot](screenshot.png)
+
 ## 🚀 Features
 
 ### Advanced Redirect Analysis
@@ -21,6 +25,14 @@ Professional URL redirect analysis tool for developers, SEO specialists, and sec
 - **Export options** - Technical reports for documentation
 - **Copy variations** - Clean URLs, headers, full chains
 - **Smart clipboard** - Handle URLs too long for input field
+
+## Install from source:
+```bash
+git clone <https://github.com/nurkamol/redirect-trace.git>
+cd redirect-trace
+npm install
+npm run dev
+```
 
 ## 📱 Usage
 
