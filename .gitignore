@@ -1,0 +1,5 @@
+# macOS system file
+.DS_Store
+
+# Raycast auto-generated environment typings
+raycast-env.d.ts
