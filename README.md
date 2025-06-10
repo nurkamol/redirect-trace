@@ -1,31 +1,65 @@
 # RedirectTrace - URL Chain Inspector for Raycast
 
-Professional URL redirect analysis tool for developers, SEO specialists, and security researchers.
+A powerful URL redirect tracer for Raycast that helps you see where links really lead before clicking them.
 
 ## Screenshot
 
 ![RedirectTrace Extension Screenshot](screenshot.png)
 
-## 🚀 Features
+## Features
 
-### Advanced Redirect Analysis
-- **Complete chain visualization** - Follow every redirect with HTTP details
-- **Status code indicators** - Color-coded 2xx/3xx/4xx/5xx responses  
-- **Response headers** - Full HTTP header inspection
-- **Timing information** - Request duration and timeout handling
+- 🔍 **Smart URL Detection** - Automatically detects long URLs in your clipboard
+- 🔗 **Complete Redirect Chain** - Shows every step of URL redirections
+- 🧹 **Clean URLs** - Removes tracking parameters and reveals clean URLs
+- 📋 **Smart Clipboard Integration** - Detects and offers to trace URLs from clipboard
+- ⚡ **Fast & Efficient** - Real-time URL tracing with minimal latency
+- 🎯 **Detailed Analysis** - HTTP status codes, headers, and redirect types
+- 📊 **Visual Status Indicators** - Color-coded status for each redirect step
+- ⌨️ **Keyboard Shortcuts** - Full keyboard navigation and quick actions
 
-### Smart URL Cleaning  
-- **Tracking removal** - Strip 40+ tracking parameters automatically
-- **Clean sharing** - Get URLs without marketing noise
-- **Character savings** - See exactly what was removed
-- **Malformed URL support** - Handle broken query strings
+## How to Use
 
-### Developer Workflow
-- **Keyboard shortcuts** - Professional hotkey workflow
-- **Export options** - Technical reports for documentation
-- **Copy variations** - Clean URLs, headers, full chains
-- **Smart clipboard** - Handle URLs too long for input field
+### Method 1: Search Bar
+1. Open the extension in Raycast
+2. Type or paste any URL in the search bar
+3. Press Enter to trace the redirect chain
+4. View the complete path from original to final destination
 
+### Method 2: Clipboard Detection
+1. Copy any long URL to your clipboard
+2. Open the extension
+3. If a long URL is detected, you'll see a clipboard section
+4. Click "Trace This URL" to analyze the redirect chain
+
+### Method 3: Keyboard Shortcuts
+- **⌘V** - Check clipboard for URLs
+- **⌘C** - Copy final URL
+- **⌘O** - Open final URL in browser
+- **⌘⇧C** - Copy original URL
+- **⌘⌥C** - Copy full chain report
+
+## What You'll See
+
+### Summary Section
+- **Original URL** - The URL you entered with character count
+- **Final Destination** - Where the URL actually leads
+- **Clean URL** - Final URL with tracking parameters removed
+- **Redirect Count** - Number of redirects in the chain
+
+### Redirect Chain
+Each step shows:
+- **HTTP Status Code** - 301, 302, 307, etc.
+- **Status Message** - Moved Permanently, Found, etc.
+- **URL at Each Step** - Complete redirect path
+- **Headers** - Response headers for each redirect
+- **Step Number** - Position in the redirect chain
+
+### Supported URLs
+- **Shortened URLs** - bit.ly, tinyurl.com, t.co, etc.
+- **Marketing Links** - Email campaign URLs
+- **Tracking URLs** - URLs with UTM parameters
+- **Social Media** - Facebook, Twitter redirect URLs
+- **Any HTTP/HTTPS URL** - Direct analysis of any web link
 ## Install from source:
 ```bash
 git clone <https://github.com/nurkamol/redirect-trace.git>
@@ -34,65 +68,71 @@ npm install
 npm run dev
 ```
 
-## 📱 Usage
+## Privacy & Security
 
-### Basic Tracing
-1. Type any URL in the search field
-2. View complete redirect chain instantly  
-3. Copy clean URL or technical details
+- **No Data Storage** - URLs are not stored or logged
+- **Direct Requests** - All requests go directly to target servers
+- **No Analytics** - No tracking or data collection
+- **Local Processing** - All analysis happens on your device
 
-### Long URL Handling
-1. Copy very long URL to clipboard
-2. Use `Cmd + V` to detect and trace
-3. Get full analysis without input limits
+## Use Cases
 
-### Keyboard Shortcuts
-- `Cmd + C` - Copy final URL
-- `Cmd + O` - Open final URL
-- `Cmd + Shift + L` - Copy clean URL
-- `Cmd + Opt + C` - Copy technical report
+### 🔐 Security
+- **Phishing Detection** - See where suspicious links really lead
+- **Malware Prevention** - Check URLs before clicking
+- **Link Verification** - Verify legitimate vs malicious redirects
 
-## ⚙️ Configuration
+### 📈 Marketing
+- **Campaign Analysis** - Understand redirect paths in campaigns
+- **Link Optimization** - Find unnecessary redirects slowing down links
+- **UTM Parameter Inspection** - See what tracking data is being collected
 
-Access in Raycast Settings > Extensions > RedirectTrace:
+### 🛠️ Development
+- **API Testing** - Test redirect behavior in applications
+- **SEO Analysis** - Check for redirect chains affecting SEO
+- **Performance Debugging** - Identify slow or broken redirects
 
-- **Max Redirects**: Maximum chain length (default: 10)
-- **Timeout**: Request timeout in ms (default: 5000)
+## Keyboard Shortcuts Reference
 
-## 🎯 Use Cases
+| Shortcut | Action |
+|----------|--------|
+| **⌘V** | Check clipboard for URLs |
+| **⌘C** | Copy final/clean URL |
+| **⌘O** | Open URL in browser |
+| **⌘⇧C** | Copy original URL |
+| **⌘⌥C** | Copy full chain report |
+| **⌘⇧L** | Copy clean URL (no tracking) |
+| **⌘I** | Show full URL in toast |
+| **⌘L** | Show clean URL in toast |
+| **⌘X** | Clear clipboard detection |
 
-**Web Development**
-- Debug redirect loops and chains
-- Analyze link shortener behavior
-- Test redirect implementations
+## Technical Details
 
-**SEO Analysis**  
-- Understand redirect impact on rankings
-- Audit redirect chains for optimization
-- Check competitor redirect strategies
+- **Built with** - TypeScript, React, Raycast API
+- **HTTP Client** - Native fetch with proper header handling
+- **URL Parsing** - RFC 3986 compliant URL parsing
+- **Redirect Handling** - Supports all HTTP redirect status codes
+- **Error Handling** - Graceful handling of network errors and timeouts
 
-**Security Research**
-- Analyze suspicious URLs safely
-- Trace tracking and analytics chains
-- Investigate link manipulation
+## Contributing
 
-**Content Creation**
-- Share clean links without tracking
-- Document redirect behavior
-- Create technical reports
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 🏗️ Technical Details
+## License
 
-**Built with:**
-- TypeScript + React
-- Raycast API v1.48.0
-- Native fetch API with manual redirect handling
+MIT License - feel free to use and modify as needed.
 
-**Architecture:**
-- Debounced input processing
-- Smart error handling and recovery  
-- Configurable timeout and retry logic
-- Professional status and progress indicators
+## Support
+
+If you encounter any issues or have feature requests, please open an issue on GitHub.
+
+## Inspiration
+
+This extension was inspired by the web service [WhereGoes.com](https://wheregoes.com) - a simple and effective tool for tracing URL redirects. We wanted to bring that same functionality directly into Raycast for faster, more convenient URL analysis without leaving your workflow.
+
+---
+
+Made with ❤️ for the Raycast community
 
 ## 👨‍💻 Author
 
@@ -102,7 +142,3 @@ Developer and Raycast enthusiast
 🌐 [nurkamol.com](https://nurkamol.com)  
 🐦 [@nurkamol](https://x.com/nurkamol)  
 📧 [nurkamol@gmail.com](mailto:nurkamol@gmail.com)
-
-## 📄 License
-
-MIT License - See LICENSE file for details
