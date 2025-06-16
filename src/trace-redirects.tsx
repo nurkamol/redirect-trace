@@ -163,6 +163,7 @@ export default function TraceRedirects() {
       return url;
     }
   };
+
   const getUrlPreview = (url: string): { display: string; full: string } => {
     try {
       const urlObj = new URL(url);
