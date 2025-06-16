@@ -139,4 +139,3 @@ raycast-env.d.ts
 .DS_Store
 .gitignore
 .gitignore
-package-lock.json
