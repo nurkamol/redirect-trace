@@ -1,5 +1,14 @@
 import { useState, useEffect } from "react";
-import { List, ActionPanel, Action, showToast, Toast, Icon, getPreferenceValues, Clipboard } from "@raycast/api";
+import {
+  List,
+  ActionPanel,
+  Action,
+  showToast,
+  Toast,
+  Icon,
+  getPreferenceValues,
+  Clipboard,
+} from "@raycast/api";
 
 interface Preferences {
   maxRedirects: number;
@@ -24,18 +33,21 @@ interface RedirectChain {
 
 export default function TraceRedirects() {
   const [searchText, setSearchText] = useState("");
-  const [redirectChain, setRedirectChain] = useState<RedirectChain | null>(null);
+  const [redirectChain, setRedirectChain] = useState<RedirectChain | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [clipboardUrl, setClipboardUrl] = useState<string | null>(null);
 
-  const { maxRedirects = 10, timeout = 5000 } = getPreferenceValues<Preferences>();
+  const { maxRedirects = 10, timeout = 5000 } =
+    getPreferenceValues<Preferences>();
 
   const validateUrl = (url: string): string => {
     if (!url) return "";
-    
+
     // Trim whitespace and remove line breaks that might come from pasting
-    const cleanUrl = url.trim().replace(/[\r\n\t]/g, '');
-    
+    const cleanUrl = url.trim().replace(/[\r\n\t]/g, "");
+
     // Add protocol if missing
     if (!cleanUrl.match(/^https?:\/\//)) {
       return `https://${cleanUrl}`;
@@ -46,60 +58,95 @@ export default function TraceRedirects() {
   const cleanTrackingParams = (url: string): string => {
     try {
       const urlObj = new URL(url);
-      
+
       // Common tracking parameters to remove
       const trackingParams = [
         // Google Analytics & Marketing
-        'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
-        'gclid', 'gclsrc', 'dclid', 'gbraid', 'wbraid',
-        
+        "utm_source",
+        "utm_medium",
+        "utm_campaign",
+        "utm_term",
+        "utm_content",
+        "gclid",
+        "gclsrc",
+        "dclid",
+        "gbraid",
+        "wbraid",
+
         // Facebook/Meta
-        'fbclid', 'fb_action_ids', 'fb_action_types', 'fb_ref', 'fb_source',
-        
+        "fbclid",
+        "fb_action_ids",
+        "fb_action_types",
+        "fb_ref",
+        "fb_source",
+
         // Email & Marketing platforms
-        'mc_cid', 'mc_eid', // MailChimp
-        'inf_ver', 'inf_ctx', // Inflection/tracking systems
-        '_hsenc', '_hsmi', // HubSpot
-        'vero_conv', 'vero_id', // Vero
-        'pk_campaign', 'pk_kwd', // Piwik/Matomo
-        
+        "mc_cid",
+        "mc_eid", // MailChimp
+        "inf_ver",
+        "inf_ctx", // Inflection/tracking systems
+        "_hsenc",
+        "_hsmi", // HubSpot
+        "vero_conv",
+        "vero_id", // Vero
+        "pk_campaign",
+        "pk_kwd", // Piwik/Matomo
+
         // Social media
-        'igshid', 'igsh', // Instagram
-        'ref_src', 'ref_url', // Generic referrer tracking
-        'share', 'shared',
-        
+        "igshid",
+        "igsh", // Instagram
+        "ref_src",
+        "ref_url", // Generic referrer tracking
+        "share",
+        "shared",
+
         // Microsoft/Bing
-        'msclkid',
-        
+        "msclkid",
+
         // Other common tracking
-        'source', 'medium', 'campaign',
-        '_branch_match_id', '_branch_referrer', // Branch.io
-        'mkt_tok', // Marketo
-        'trk', 'trkCampaign', // Generic tracking
-        'ref', 'referrer',
-        'cmpid', 'WT.mc_id', // Various campaign IDs
-        
+        "source",
+        "medium",
+        "campaign",
+        "_branch_match_id",
+        "_branch_referrer", // Branch.io
+        "mkt_tok", // Marketo
+        "trk",
+        "trkCampaign", // Generic tracking
+        "ref",
+        "referrer",
+        "cmpid",
+        "WT.mc_id", // Various campaign IDs
+
         // Analytics platforms
-        '_ga', '_gl', // Google Analytics client ID
-        'affiliate_id', 'aff_id',
-        'click_id', 'clickid',
-        
+        "_ga",
+        "_gl", // Google Analytics client ID
+        "affiliate_id",
+        "aff_id",
+        "click_id",
+        "clickid",
+
         // Newsletter/email specific
-        'newsletter_id', 'email_id', 'subscriber_id',
-        
+        "newsletter_id",
+        "email_id",
+        "subscriber_id",
+
         // Specific to some tracking systems
-        's_cid', 'ncid', // Adobe/Omniture
-        'zanpid', 'ranMID', 'ranEAID', 'ranSiteID' // Rakuten/Commission Junction
+        "s_cid",
+        "ncid", // Adobe/Omniture
+        "zanpid",
+        "ranMID",
+        "ranEAID",
+        "ranSiteID", // Rakuten/Commission Junction
       ];
-      
+
       // Remove tracking parameters
-      trackingParams.forEach(param => {
+      trackingParams.forEach((param) => {
         urlObj.searchParams.delete(param);
       });
-      
+
       // Remove parameters that look like tracking (heuristic approach)
       const paramsToCheck = Array.from(urlObj.searchParams.keys());
-      paramsToCheck.forEach(param => {
+      paramsToCheck.forEach((param) => {
         // Remove params that are clearly tracking IDs (long random strings)
         if (param.length > 10 && /^[a-zA-Z0-9_-]+$/.test(param)) {
           const value = urlObj.searchParams.get(param);
@@ -107,58 +154,66 @@ export default function TraceRedirects() {
             urlObj.searchParams.delete(param);
           }
         }
-        
+
         // Remove params with tracking-like names (case insensitive)
-        if (/^(track|trk|tid|cid|sid|eid|campaign|source|medium|ref|click)_?/i.test(param)) {
+        if (
+          /^(track|trk|tid|cid|sid|eid|campaign|source|medium|ref|click)_?/i.test(
+            param,
+          )
+        ) {
           urlObj.searchParams.delete(param);
         }
-        
+
         // Remove params that look like encoded data
         if (param.length > 5 && /^[a-zA-Z0-9_]+$/.test(param)) {
           const value = urlObj.searchParams.get(param);
-          if (value && value.length > 30 && (/[A-Z]{2,}[a-z]+[A-Z]/.test(value) || /^[A-Za-z0-9+/]+=*$/.test(value))) {
+          if (
+            value &&
+            value.length > 30 &&
+            (/[A-Z]{2,}[a-z]+[A-Z]/.test(value) ||
+              /^[A-Za-z0-9+/]+=*$/.test(value))
+          ) {
             urlObj.searchParams.delete(param);
           }
         }
       });
-      
+
       // Handle malformed URLs that have parameters in the path (like your example)
       let cleanPath = urlObj.pathname;
-      if (cleanPath.includes('&')) {
+      if (cleanPath.includes("&")) {
         // Extract the actual path before any parameters
-        const pathParts = cleanPath.split('&');
+        const pathParts = cleanPath.split("&");
         cleanPath = pathParts[0];
-        
+
         // Update the URL object
         urlObj.pathname = cleanPath;
       }
-      
+
       // Return clean URL
       const cleanUrl = urlObj.toString();
-      
+
       // Remove trailing ? if no parameters remain
-      return cleanUrl.endsWith('?') ? cleanUrl.slice(0, -1) : cleanUrl;
-      
-    } catch (error) {
+      return cleanUrl.endsWith("?") ? cleanUrl.slice(0, -1) : cleanUrl;
+    } catch {
       // If URL parsing fails, try manual cleaning for malformed URLs
       try {
         // Handle URLs with malformed query strings
-        if (url.includes('&')) {
-          const parts = url.split('&');
+        if (url.includes("&")) {
+          const parts = url.split("&");
           const cleanPart = parts[0];
-          
+
           // Try to parse the clean part
           const testUrl = new URL(cleanPart);
           return testUrl.toString();
         }
-      } catch (e) {
+      } catch {
         // If all parsing fails, try basic string manipulation
-        const ampIndex = url.indexOf('&');
+        const ampIndex = url.indexOf("&");
         if (ampIndex > 0) {
           return url.substring(0, ampIndex);
         }
       }
-      
+
       // Return original if nothing works
       return url;
     }
@@ -168,13 +223,13 @@ export default function TraceRedirects() {
     try {
       const urlObj = new URL(url);
       return {
-        display: `${urlObj.hostname}${urlObj.pathname}${urlObj.search ? '?' + urlObj.search.substring(1, 20) + (urlObj.search.length > 21 ? '...' : '') : ''}`,
-        full: url
+        display: `${urlObj.hostname}${urlObj.pathname}${urlObj.search ? "?" + urlObj.search.substring(1, 20) + (urlObj.search.length > 21 ? "..." : "") : ""}`,
+        full: url,
       };
     } catch {
       return {
         display: url.length > 60 ? `${url.substring(0, 60)}...` : url,
-        full: url
+        full: url,
       };
     }
   };
@@ -186,7 +241,11 @@ export default function TraceRedirects() {
     let redirectCount = 0;
 
     if (validatedUrl.length > 500) {
-      showToast(Toast.Style.Animated, "Processing long URL", `${Math.round(validatedUrl.length / 100) / 10}k characters`);
+      showToast(
+        Toast.Style.Animated,
+        "Processing long URL",
+        `${Math.round(validatedUrl.length / 100) / 10}k characters`,
+      );
     }
 
     try {
@@ -201,17 +260,18 @@ export default function TraceRedirects() {
             signal: controller.signal,
             headers: {
               "User-Agent": "WhereGoes.com Redirect Checker/1.0",
-              "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+              Accept:
+                "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
               "Accept-Language": "en-US,en;q=0.9",
               "Accept-Encoding": "gzip, deflate, br",
-              "DNT": "1",
-              "Connection": "keep-alive",
+              DNT: "1",
+              Connection: "keep-alive",
               "Upgrade-Insecure-Requests": "1",
               "Sec-Fetch-Dest": "document",
               "Sec-Fetch-Mode": "navigate",
               "Sec-Fetch-Site": "none",
               "Cache-Control": "no-cache",
-              "Pragma": "no-cache",
+              Pragma: "no-cache",
             },
           });
 
@@ -237,24 +297,24 @@ export default function TraceRedirects() {
 
             try {
               let nextUrl;
-              if (location.startsWith('http')) {
+              if (location.startsWith("http")) {
                 nextUrl = location;
-              } else if (location.startsWith('/')) {
+              } else if (location.startsWith("/")) {
                 const baseUrl = new URL(currentUrl);
                 nextUrl = `${baseUrl.protocol}//${baseUrl.host}${location}`;
               } else {
                 nextUrl = new URL(location, currentUrl).href;
               }
-              
+
               currentUrl = nextUrl;
               redirectCount++;
-            } catch (urlError) {
+            } catch {
               try {
                 const decodedLocation = decodeURIComponent(location);
                 let nextUrl;
-                if (decodedLocation.startsWith('http')) {
+                if (decodedLocation.startsWith("http")) {
                   nextUrl = decodedLocation;
-                } else if (decodedLocation.startsWith('/')) {
+                } else if (decodedLocation.startsWith("/")) {
                   const baseUrl = new URL(currentUrl);
                   nextUrl = `${baseUrl.protocol}//${baseUrl.host}${decodedLocation}`;
                 } else {
@@ -271,26 +331,27 @@ export default function TraceRedirects() {
           }
         } catch (fetchError) {
           clearTimeout(timeoutId);
-          
+
           let errorMessage = "Unknown error occurred";
           if (fetchError instanceof Error) {
-            if (fetchError.name === 'AbortError') {
+            if (fetchError.name === "AbortError") {
               errorMessage = `Request timeout after ${timeout}ms`;
-            } else if (fetchError.message.includes('ENOTFOUND')) {
+            } else if (fetchError.message.includes("ENOTFOUND")) {
               errorMessage = "DNS resolution failed - domain not found";
-            } else if (fetchError.message.includes('ECONNREFUSED')) {
+            } else if (fetchError.message.includes("ECONNREFUSED")) {
               errorMessage = "Connection refused by server";
-            } else if (fetchError.message.includes('certificate')) {
+            } else if (fetchError.message.includes("certificate")) {
               errorMessage = "SSL certificate error";
-            } else if (fetchError.message.includes('CORS')) {
+            } else if (fetchError.message.includes("CORS")) {
               errorMessage = "CORS policy blocked the request";
-            } else if (fetchError.message.includes('Failed to fetch')) {
-              errorMessage = "Network request failed - possible CORS or security restriction";
+            } else if (fetchError.message.includes("Failed to fetch")) {
+              errorMessage =
+                "Network request failed - possible CORS or security restriction";
             } else {
               errorMessage = fetchError.message;
             }
           }
-          
+
           throw new Error(errorMessage);
         }
       }
@@ -309,7 +370,8 @@ export default function TraceRedirects() {
         steps,
         totalRedirects: redirectCount,
         isComplete: false,
-        error: error instanceof Error ? error.message : "Unknown error occurred",
+        error:
+          error instanceof Error ? error.message : "Unknown error occurred",
       };
     }
   };
@@ -319,21 +381,27 @@ export default function TraceRedirects() {
     const checkClipboard = async () => {
       try {
         const clipboardText = await Clipboard.readText();
-        
+
         if (clipboardText) {
-          const isUrl = clipboardText.startsWith('http://') || clipboardText.startsWith('https://');
+          const isUrl =
+            clipboardText.startsWith("http://") ||
+            clipboardText.startsWith("https://");
           const isLong = clipboardText.length > 500;
-          
+
           if (isUrl && isLong) {
             setClipboardUrl(clipboardText);
-            showToast(Toast.Style.Success, "Long URL detected in clipboard", `${Math.round(clipboardText.length / 100) / 10}k characters - Use 'Paste Long URL' action`);
+            showToast(
+              Toast.Style.Success,
+              "Long URL detected in clipboard",
+              `${Math.round(clipboardText.length / 100) / 10}k characters - Use 'Paste Long URL' action`,
+            );
           }
         }
-      } catch (error) {
+      } catch {
         // Clipboard access failed, ignore silently
       }
     };
-    
+
     // Delay slightly to ensure extension is fully loaded
     const timer = setTimeout(checkClipboard, 100);
     return () => clearTimeout(timer);
@@ -343,30 +411,51 @@ export default function TraceRedirects() {
   const checkClipboardManually = async () => {
     try {
       const clipboardText = await Clipboard.readText();
-      
+
       if (!clipboardText) {
-        showToast(Toast.Style.Failure, "No clipboard content", "Copy a URL to clipboard first");
+        showToast(
+          Toast.Style.Failure,
+          "No clipboard content",
+          "Copy a URL to clipboard first",
+        );
         return;
       }
-      
-      const isUrl = clipboardText.startsWith('http://') || clipboardText.startsWith('https://');
+
+      const isUrl =
+        clipboardText.startsWith("http://") ||
+        clipboardText.startsWith("https://");
       if (!isUrl) {
-        showToast(Toast.Style.Failure, "Not a URL", "Clipboard doesn't contain a valid URL");
+        showToast(
+          Toast.Style.Failure,
+          "Not a URL",
+          "Clipboard doesn't contain a valid URL",
+        );
         return;
       }
-      
+
       if (clipboardText.length < 500) {
-        showToast(Toast.Style.Success, "URL detected", "Pasted directly in search bar");
+        showToast(
+          Toast.Style.Success,
+          "URL detected",
+          "Pasted directly in search bar",
+        );
         // Auto-paste the URL into search if it's short enough
         setSearchText(clipboardText);
         return;
       }
-      
+
       setClipboardUrl(clipboardText);
-      showToast(Toast.Style.Success, "Long URL detected!", `${Math.round(clipboardText.length / 100) / 10}k characters ready to trace`);
-      
-    } catch (error) {
-      showToast(Toast.Style.Failure, "Clipboard access failed", "Unable to read clipboard content");
+      showToast(
+        Toast.Style.Success,
+        "Long URL detected!",
+        `${Math.round(clipboardText.length / 100) / 10}k characters ready to trace`,
+      );
+    } catch {
+      showToast(
+        Toast.Style.Failure,
+        "Clipboard access failed",
+        "Unable to read clipboard content",
+      );
     }
   };
 
@@ -377,9 +466,17 @@ export default function TraceRedirects() {
       try {
         const result = await followRedirects(clipboardUrl);
         setRedirectChain(result);
-        showToast(Toast.Style.Success, "Traced clipboard URL", `Found ${result.totalRedirects} redirects`);
+        showToast(
+          Toast.Style.Success,
+          "Traced clipboard URL",
+          `Found ${result.totalRedirects} redirects`,
+        );
       } catch (error) {
-        showToast(Toast.Style.Failure, "Error tracing clipboard URL", error instanceof Error ? error.message : "Unknown error");
+        showToast(
+          Toast.Style.Failure,
+          "Error tracing clipboard URL",
+          error instanceof Error ? error.message : "Unknown error",
+        );
       } finally {
         setIsLoading(false);
       }
@@ -399,7 +496,11 @@ export default function TraceRedirects() {
         const result = await followRedirects(searchText);
         setRedirectChain(result);
       } catch (error) {
-        showToast(Toast.Style.Failure, "Error tracing redirects", error instanceof Error ? error.message : "Unknown error");
+        showToast(
+          Toast.Style.Failure,
+          "Error tracing redirects",
+          error instanceof Error ? error.message : "Unknown error",
+        );
       } finally {
         setIsLoading(false);
       }
@@ -432,7 +533,10 @@ export default function TraceRedirects() {
       searchBarAccessory={
         clipboardUrl ? (
           <List.Dropdown tooltip="Clipboard URL detected">
-            <List.Dropdown.Item title="📋 Long URL in clipboard - use action below" value="clipboard" />
+            <List.Dropdown.Item
+              title="📋 Long URL in clipboard - use action below"
+              value="clipboard"
+            />
           </List.Dropdown>
         ) : undefined
       }
@@ -442,7 +546,7 @@ export default function TraceRedirects() {
         <List.Section title="Clipboard URL Detected">
           <List.Item
             icon={Icon.Clipboard}
-            title="Paste Long URL from Clipboard"
+            title="Paste Long URL From Clipboard"
             subtitle={`${clipboardUrl.length} characters - ${clipboardUrl.substring(0, 100)}...`}
             accessories={[
               {
@@ -478,17 +582,17 @@ export default function TraceRedirects() {
         <List.Section title="How to Use">
           <List.Item
             icon={Icon.Info}
-            title="For URLs under 500 characters"
+            title="For URLs Under 500 Characters"
             subtitle="Type or paste directly in the search bar above"
           />
           <List.Item
             icon={Icon.Clipboard}
-            title="For very long URLs (500+ characters)"
+            title="For Very Long URLs (500+ Characters)"
             subtitle="Copy URL to clipboard first, then use 'Check Clipboard' below"
             actions={
               <ActionPanel>
                 <Action
-                  title="Check Clipboard for Long URLs"
+                  title="Check Clipboard for Long Urls"
                   icon={Icon.Clipboard}
                   onAction={checkClipboardManually}
                   shortcut={{ modifiers: ["cmd"], key: "v" }}
@@ -498,12 +602,12 @@ export default function TraceRedirects() {
           />
           <List.Item
             icon={Icon.Globe}
-            title="Supported URL types"
+            title="Supported URL Types"
             subtitle="HTTP/HTTPS, shortened URLs, tracking links, email redirects"
           />
           <List.Item
             icon={Icon.QuestionMark}
-            title="Clipboard not detected automatically?"
+            title="Clipboard Not Detected Automatically?"
             subtitle="Use 'Check Clipboard' action on the long URLs option above"
             actions={
               <ActionPanel>
@@ -529,7 +633,9 @@ export default function TraceRedirects() {
               accessories={[
                 {
                   text: redirectChain.isComplete ? "Complete" : "Incomplete",
-                  icon: redirectChain.isComplete ? Icon.CheckCircle : Icon.ExclamationMark,
+                  icon: redirectChain.isComplete
+                    ? Icon.CheckCircle
+                    : Icon.ExclamationMark,
                 },
               ]}
               actions={
@@ -557,13 +663,15 @@ Final: ${redirectChain.finalUrl}
 Total Redirects: ${redirectChain.totalRedirects}
 
 Chain Details:
-${redirectChain.steps.map((step, i) => `${i + 1}. ${step.status} ${step.statusText} - ${step.url}`).join('\n')}
-${redirectChain.error ? `\nError: ${redirectChain.error}` : ''}`}
+${redirectChain.steps.map((step, i) => `${i + 1}. ${step.status} ${step.statusText} - ${step.url}`).join("\n")}
+${redirectChain.error ? `\nError: ${redirectChain.error}` : ""}`}
                     shortcut={{ modifiers: ["cmd", "opt"], key: "c" }}
                   />
                   <Action.CopyToClipboard
-                    title="Copy All URLs"
-                    content={redirectChain.steps.map(step => step.url).join('\n')}
+                    title="Copy All Urls"
+                    content={redirectChain.steps
+                      .map((step) => step.url)
+                      .join("\n")}
                     shortcut={{ modifiers: ["cmd", "shift", "opt"], key: "c" }}
                   />
                 </ActionPanel>
@@ -571,11 +679,14 @@ ${redirectChain.error ? `\nError: ${redirectChain.error}` : ''}`}
             />
             <List.Item
               icon={Icon.Target}
-              title="Final destination"
+              title="Final Destination"
               subtitle={getUrlPreview(redirectChain.finalUrl).display}
               accessories={[
                 {
-                  text: redirectChain.finalUrl.length > 100 ? `${Math.round(redirectChain.finalUrl.length / 100) / 10}k chars` : `${redirectChain.finalUrl.length} chars`,
+                  text:
+                    redirectChain.finalUrl.length > 100
+                      ? `${Math.round(redirectChain.finalUrl.length / 100) / 10}k chars`
+                      : `${redirectChain.finalUrl.length} chars`,
                   tooltip: redirectChain.finalUrl,
                 },
               ]}
@@ -610,22 +721,28 @@ Clean: ${cleanTrackingParams(redirectChain.finalUrl)}
 Total Redirects: ${redirectChain.totalRedirects}
 
 Chain Details:
-${redirectChain.steps.map((step, i) => `${i + 1}. ${step.status} ${step.statusText} - ${step.url}`).join('\n')}
-${redirectChain.error ? `\nError: ${redirectChain.error}` : ''}`}
+${redirectChain.steps.map((step, i) => `${i + 1}. ${step.status} ${step.statusText} - ${step.url}`).join("\n")}
+${redirectChain.error ? `\nError: ${redirectChain.error}` : ""}`}
                     shortcut={{ modifiers: ["cmd", "opt"], key: "c" }}
                   />
                   <Action
                     title="Show Full URL"
                     icon={Icon.Eye}
                     onAction={() => {
-                      showToast(Toast.Style.Success, "Full URL", redirectChain.finalUrl);
+                      showToast(
+                        Toast.Style.Success,
+                        "Full URL",
+                        redirectChain.finalUrl,
+                      );
                     }}
                   />
                   <Action
                     title="Show Clean URL"
                     icon={Icon.EyeSlash}
                     onAction={() => {
-                      const cleanUrl = cleanTrackingParams(redirectChain.finalUrl);
+                      const cleanUrl = cleanTrackingParams(
+                        redirectChain.finalUrl,
+                      );
                       showToast(Toast.Style.Success, "Clean URL", cleanUrl);
                     }}
                     shortcut={{ modifiers: ["cmd"], key: "l" }}
@@ -636,11 +753,11 @@ ${redirectChain.error ? `\nError: ${redirectChain.error}` : ''}`}
             {(() => {
               const cleanUrl = cleanTrackingParams(redirectChain.finalUrl);
               const hasTracking = cleanUrl !== redirectChain.finalUrl;
-              
+
               return hasTracking ? (
                 <List.Item
                   icon={Icon.EyeSlash}
-                  title="Clean URL (tracking removed)"
+                  title="Clean URL (Tracking Removed)"
                   subtitle={getUrlPreview(cleanUrl).display}
                   accessories={[
                     {
@@ -674,10 +791,14 @@ ${redirectChain.error ? `\nError: ${redirectChain.error}` : ''}`}
                         }}
                       />
                       <Action
-                        title="Compare URLs"
+                        title="Compare Urls"
                         icon={Icon.ArrowLeftAndRightArrowRight}
                         onAction={() => {
-                          showToast(Toast.Style.Success, "URL Comparison", `Original: ${redirectChain.finalUrl.length} chars\nClean: ${cleanUrl.length} chars\nRemoved: ${redirectChain.finalUrl.length - cleanUrl.length} chars`);
+                          showToast(
+                            Toast.Style.Success,
+                            "URL Comparison",
+                            `Original: ${redirectChain.finalUrl.length} chars\nClean: ${cleanUrl.length} chars\nRemoved: ${redirectChain.finalUrl.length - cleanUrl.length} chars`,
+                          );
                         }}
                       />
                     </ActionPanel>
@@ -705,7 +826,10 @@ ${redirectChain.error ? `\nError: ${redirectChain.error}` : ''}`}
                         text: `Step ${index + 1}`,
                       },
                       {
-                        text: step.url.length > 100 ? `${Math.round(step.url.length / 100) / 10}k` : `${step.url.length}`,
+                        text:
+                          step.url.length > 100
+                            ? `${Math.round(step.url.length / 100) / 10}k`
+                            : `${step.url.length}`,
                         tooltip: `URL length: ${step.url.length} characters`,
                       },
                     ]}
@@ -732,8 +856,11 @@ ${redirectChain.error ? `\nError: ${redirectChain.error}` : ''}`}
                           shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
                         />
                         <Action.CopyToClipboard
-                          title="Copy All URLs Up To This Step"
-                          content={redirectChain.steps.slice(0, index + 1).map(s => s.url).join('\n')}
+                          title="Copy All Urls up to This Step"
+                          content={redirectChain.steps
+                            .slice(0, index + 1)
+                            .map((s) => s.url)
+                            .join("\n")}
                           shortcut={{ modifiers: ["cmd", "opt"], key: "c" }}
                         />
                         <Action.CopyToClipboard
@@ -742,13 +869,20 @@ ${redirectChain.error ? `\nError: ${redirectChain.error}` : ''}`}
 URL: ${step.url}
 Clean URL: ${cleanTrackingParams(step.url)}
 Headers: ${JSON.stringify(step.headers, null, 2)}`}
-                          shortcut={{ modifiers: ["cmd", "shift", "opt"], key: "c" }}
+                          shortcut={{
+                            modifiers: ["cmd", "shift", "opt"],
+                            key: "c",
+                          }}
                         />
                         <Action
                           title="Show Full URL"
                           icon={Icon.Eye}
                           onAction={() => {
-                            showToast(Toast.Style.Success, "Full URL", step.url);
+                            showToast(
+                              Toast.Style.Success,
+                              "Full URL",
+                              step.url,
+                            );
                           }}
                           shortcut={{ modifiers: ["cmd"], key: "i" }}
                         />
@@ -757,7 +891,11 @@ Headers: ${JSON.stringify(step.headers, null, 2)}`}
                           icon={Icon.EyeSlash}
                           onAction={() => {
                             const cleanUrl = cleanTrackingParams(step.url);
-                            showToast(Toast.Style.Success, "Clean URL", cleanUrl);
+                            showToast(
+                              Toast.Style.Success,
+                              "Clean URL",
+                              cleanUrl,
+                            );
                           }}
                           shortcut={{ modifiers: ["cmd"], key: "l" }}
                         />
