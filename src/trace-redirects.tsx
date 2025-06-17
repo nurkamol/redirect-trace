@@ -267,7 +267,7 @@ export default function TraceRedirects() {
             redirect: "manual",
             signal: controller.signal,
             headers: {
-              "User-Agent": "WhereGoes.com Redirect Checker/1.0",
+              "User-Agent": "RedirectTrace-Raycast-Extension/1.0",
               Accept:
                 "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
               "Accept-Language": "en-US,en;q=0.9",
