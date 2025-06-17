@@ -31,9 +31,7 @@
       "required": false,
       "title": "Max Redirects",
       "description": "Maximum number of redirects to follow",
-      "default": "10",
-      "minimum": 1,
-      "maximum": 50
+      "default": "10"
     },
     {
       "name": "timeout",
@@ -41,8 +39,7 @@
       "required": false,
       "title": "Timeout (ms)",
       "description": "Request timeout in milliseconds",
-      "default": "5000",
-      "minimum": 1000
+      "default": "5000"
     }
   ],
   "dependencies": {

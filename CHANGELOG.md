@@ -1,8 +1,12 @@
 # Redirect Trace Changelog
 
-## [1.0.1] - 2025-06-17
+## [Initial Version] - {PR_MERGE_DATE}
 
 ### Added
+- Initial release of RedirectTrace extension
+- Basic URL redirect tracing functionality
+- HTTP status code analysis
+- Simple redirect chain visualization
 - Smart clipboard integration with auto-detection of long URLs
 - Complete redirect chain analysis with HTTP status codes
 - Clean URL generation removing 50+ types of tracking parameters
@@ -16,11 +20,3 @@
 - Modern Raycast API integration
 - Secure request handling with proper headers
 - Comprehensive tracking parameter removal
-
-## [1.0.0] - 2025-06-17
-
-### Added
-- Initial release of RedirectTrace extension
-- Basic URL redirect tracing functionality
-- HTTP status code analysis
-- Simple redirect chain visualization
