@@ -11,8 +11,8 @@ import {
 } from "@raycast/api";
 
 interface Preferences {
-  maxRedirects: number;
-  timeout: number;
+  maxRedirects: string;
+  timeout: string;
 }
 
 interface RedirectStep {
@@ -39,8 +39,9 @@ export default function TraceRedirects() {
   const [isLoading, setIsLoading] = useState(false);
   const [clipboardUrl, setClipboardUrl] = useState<string | null>(null);
 
-  const { maxRedirects = 10, timeout = 5000 } =
-    getPreferenceValues<Preferences>();
+  const preferences = getPreferenceValues<Preferences>();
+  const maxRedirects = parseInt(preferences.maxRedirects || "10", 10);
+  const timeout = parseInt(preferences.timeout || "5000", 10);
 
   const validateUrl = (url: string): string => {
     if (!url) return "";
@@ -241,11 +242,11 @@ export default function TraceRedirects() {
     let redirectCount = 0;
 
     if (validatedUrl.length > 500) {
-      showToast(
-        Toast.Style.Animated,
-        "Processing long URL",
-        `${Math.round(validatedUrl.length / 100) / 10}k characters`,
-      );
+      showToast({
+        style: Toast.Style.Success,
+        title: "Processing Long URL",
+        message: `${Math.round(validatedUrl.length / 100) / 10}k characters - analyzing...`,
+      });
     }
 
     try {
@@ -390,11 +391,11 @@ export default function TraceRedirects() {
 
           if (isUrl && isLong) {
             setClipboardUrl(clipboardText);
-            showToast(
-              Toast.Style.Success,
-              "Long URL detected in clipboard",
-              `${Math.round(clipboardText.length / 100) / 10}k characters - Use 'Paste Long URL' action`,
-            );
+            showToast({
+              style: Toast.Style.Success,
+              title: "Long URL detected in clipboard",
+              message: `${Math.round(clipboardText.length / 100) / 10}k characters - Use 'Paste Long URL' action`,
+            });
           }
         }
       } catch {
@@ -413,11 +414,11 @@ export default function TraceRedirects() {
       const clipboardText = await Clipboard.readText();
 
       if (!clipboardText) {
-        showToast(
-          Toast.Style.Failure,
-          "No clipboard content",
-          "Copy a URL to clipboard first",
-        );
+        showToast({
+          style: Toast.Style.Failure,
+          title: "No clipboard content",
+          message: "Copy a URL to clipboard first",
+        });
         return;
       }
 
@@ -425,37 +426,37 @@ export default function TraceRedirects() {
         clipboardText.startsWith("http://") ||
         clipboardText.startsWith("https://");
       if (!isUrl) {
-        showToast(
-          Toast.Style.Failure,
-          "Not a URL",
-          "Clipboard doesn't contain a valid URL",
-        );
+        showToast({
+          style: Toast.Style.Failure,
+          title: "Not a URL",
+          message: "Clipboard doesn't contain a valid URL",
+        });
         return;
       }
 
       if (clipboardText.length < 500) {
-        showToast(
-          Toast.Style.Success,
-          "URL detected",
-          "Pasted directly in search bar",
-        );
+        showToast({
+          style: Toast.Style.Success,
+          title: "URL detected",
+          message: "Pasted directly in search bar",
+        });
         // Auto-paste the URL into search if it's short enough
         setSearchText(clipboardText);
         return;
       }
 
       setClipboardUrl(clipboardText);
-      showToast(
-        Toast.Style.Success,
-        "Long URL detected!",
-        `${Math.round(clipboardText.length / 100) / 10}k characters ready to trace`,
-      );
+      showToast({
+        style: Toast.Style.Success,
+        title: "Long URL detected!",
+        message: `${Math.round(clipboardText.length / 100) / 10}k characters ready to trace`,
+      });
     } catch {
-      showToast(
-        Toast.Style.Failure,
-        "Clipboard access failed",
-        "Unable to read clipboard content",
-      );
+      showToast({
+        style: Toast.Style.Failure,
+        title: "Clipboard access failed",
+        message: "Unable to read clipboard content",
+      });
     }
   };
 
@@ -466,17 +467,17 @@ export default function TraceRedirects() {
       try {
         const result = await followRedirects(clipboardUrl);
         setRedirectChain(result);
-        showToast(
-          Toast.Style.Success,
-          "Traced clipboard URL",
-          `Found ${result.totalRedirects} redirects`,
-        );
+        showToast({
+          style: Toast.Style.Success,
+          title: "Traced clipboard URL",
+          message: `Found ${result.totalRedirects} redirects`,
+        });
       } catch (error) {
-        showToast(
-          Toast.Style.Failure,
-          "Error tracing clipboard URL",
-          error instanceof Error ? error.message : "Unknown error",
-        );
+        showToast({
+          style: Toast.Style.Failure,
+          title: "Error tracing clipboard URL",
+          message: error instanceof Error ? error.message : "Unknown error",
+        });
       } finally {
         setIsLoading(false);
       }
@@ -496,11 +497,11 @@ export default function TraceRedirects() {
         const result = await followRedirects(searchText);
         setRedirectChain(result);
       } catch (error) {
-        showToast(
-          Toast.Style.Failure,
-          "Error tracing redirects",
-          error instanceof Error ? error.message : "Unknown error",
-        );
+        showToast({
+          style: Toast.Style.Failure,
+          title: "Error tracing redirects",
+          message: error instanceof Error ? error.message : "Unknown error",
+        });
       } finally {
         setIsLoading(false);
       }
@@ -729,11 +730,11 @@ ${redirectChain.error ? `\nError: ${redirectChain.error}` : ""}`}
                     title="Show Full URL"
                     icon={Icon.Eye}
                     onAction={() => {
-                      showToast(
-                        Toast.Style.Success,
-                        "Full URL",
-                        redirectChain.finalUrl,
-                      );
+                      showToast({
+                        style: Toast.Style.Success,
+                        title: "Full URL",
+                        message: redirectChain.finalUrl,
+                      });
                     }}
                   />
                   <Action
@@ -743,7 +744,11 @@ ${redirectChain.error ? `\nError: ${redirectChain.error}` : ""}`}
                       const cleanUrl = cleanTrackingParams(
                         redirectChain.finalUrl,
                       );
-                      showToast(Toast.Style.Success, "Clean URL", cleanUrl);
+                      showToast({
+                        style: Toast.Style.Success,
+                        title: "Clean URL",
+                        message: cleanUrl,
+                      });
                     }}
                     shortcut={{ modifiers: ["cmd"], key: "l" }}
                   />
@@ -787,18 +792,22 @@ ${redirectChain.error ? `\nError: ${redirectChain.error}` : ""}`}
                         title="Show Clean URL"
                         icon={Icon.EyeSlash}
                         onAction={() => {
-                          showToast(Toast.Style.Success, "Clean URL", cleanUrl);
+                          showToast({
+                            style: Toast.Style.Success,
+                            title: "Clean URL",
+                            message: cleanUrl,
+                          });
                         }}
                       />
                       <Action
                         title="Compare Urls"
                         icon={Icon.TwoArrowsClockwise}
                         onAction={() => {
-                          showToast(
-                            Toast.Style.Success,
-                            "URL Comparison",
-                            `Original: ${redirectChain.finalUrl.length} chars\nClean: ${cleanUrl.length} chars\nRemoved: ${redirectChain.finalUrl.length - cleanUrl.length} chars`,
-                          );
+                          showToast({
+                            style: Toast.Style.Success,
+                            title: "URL Comparison",
+                            message: `Original: ${redirectChain.finalUrl.length} chars\nClean: ${cleanUrl.length} chars\nRemoved: ${redirectChain.finalUrl.length - cleanUrl.length} chars`,
+                          });
                         }}
                       />
                     </ActionPanel>
@@ -878,11 +887,11 @@ Headers: ${JSON.stringify(step.headers, null, 2)}`}
                           title="Show Full URL"
                           icon={Icon.Eye}
                           onAction={() => {
-                            showToast(
-                              Toast.Style.Success,
-                              "Full URL",
-                              step.url,
-                            );
+                            showToast({
+                              style: Toast.Style.Success,
+                              title: "Full URL",
+                              message: step.url,
+                            });
                           }}
                           shortcut={{ modifiers: ["cmd"], key: "i" }}
                         />
@@ -891,11 +900,11 @@ Headers: ${JSON.stringify(step.headers, null, 2)}`}
                           icon={Icon.EyeSlash}
                           onAction={() => {
                             const cleanUrl = cleanTrackingParams(step.url);
-                            showToast(
-                              Toast.Style.Success,
-                              "Clean URL",
-                              cleanUrl,
-                            );
+                            showToast({
+                              style: Toast.Style.Success,
+                              title: "Clean URL",
+                              message: cleanUrl,
+                            });
                           }}
                           shortcut={{ modifiers: ["cmd"], key: "l" }}
                         />
