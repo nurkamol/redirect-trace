@@ -2,6 +2,8 @@
 
 A powerful URL redirect tracer for Raycast that helps you see where links really lead before clicking them. Like wheregoes.com for Raycast.
 
+### 🎉[Install Extension](https://www.raycast.com/nurkamol/redirect-trace)
+
 ## Screenshot
 
 ![RedirectTrace Extension Screenshot](https://github.com/nurkamol/redirect-trace/blob/main/metadata/redirect-trace-1.png)
